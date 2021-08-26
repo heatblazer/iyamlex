@@ -136,8 +136,12 @@ struct YamlParser
 
 #endif
     }
-
-    void Load(const std::string& fname)
+    /**
+     * @brief Load
+     * @param fname - filename
+     * @return - true on success reading, false else
+     */
+    bool Load(const std::string& fname)
     {
         std::ifstream infile(fname);
         std::string line;
@@ -149,10 +153,15 @@ struct YamlParser
             }
             m_raw.push_back(line);
         }
+        return true; //todo
     }
 private:
 
 protected:
+    /**
+     * @brief parse_internal
+     * parses the yaml file, previously loaded as 'raw' array
+     */
     virtual void parse_internal()
     {
         std::string last;
@@ -182,8 +191,6 @@ protected:
                     while (utils::isspace(*vit++));
                     node.key = std::string(--kit);
                     node.value = std::string(--vit);
-//                    node.key = out[0];
-//                    node.value = out[1];
                 }
                 m_nodes[last].AddNode(node);
             }
@@ -198,16 +205,24 @@ public:
 };
 
 
-int main()
+int main(int argc, char** argv)
 {
-    std::string fname1 = "/home/ilian/Desktop/verint/tst.yml";
-    std::string fname2 = "/home/ilian/Desktop/verint/yaml/strings.yaml";
-    std::string fname3 = "/home/ilian/Desktop/verint/yaml/tags.yaml";
+    if (argc != 2) {
+        std::cout << "provide argument...\r\n";
+        return 1;
+    }
+    std::string fname {argv[1]};
     YamlParser ymlp;
-    ymlp.Load(fname1);
+
+    ymlp.Load(fname);
+
     ymlp.Parse();
-//    ymlp.dbg_print();
+
+    ymlp.dbg_print();
+
     YamlParser::YamlNodeStrStr node = ymlp.GetVal("CoinbaseCustodial:");
+
     node.print();
+
     return 0;
 }
