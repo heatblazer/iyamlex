@@ -1,0 +1,28 @@
+CoinbaseCustodial:
+    dnsDomains: {'api.coinbase.com','exceptions.coinbase.com','ws.coinbase.com','www.coinbase.com','www.coinbase.com.'}
+    dnsRegexs: {'api.coinbase.com','exceptions.coinbase.com','ws.coinbase.com','www.coinbase.com','www.coinbase.com.'}
+    sslDomains: {'api.coinbase.com','exceptions.coinbase.com','ws.coinbase.com','www.coinbase.com','www.coinbase.com.'}
+    sslRegexs: {'api.coinbase.com','exceptions.coinbase.com','ws.coinbase.com','www.coinbase.com','www.coinbase.com.'}
+    serverIps: {'104.16.54.36','104.16.53.36','104.18.6.10','104.18.7.10','104.16.9.251'}
+    supportedModels:
+        1: ['modelVersion1','modelVersion11','modelVersion12','modelVersion13']
+        2: ['modelVersion2']
+        100: ['modelVersion100','modelVersion101','modelVersion102','modelVersion103']
+        200: ['modelVersion200','modelVersion201','modelVersion202']
+	supportedModels2:
+            1: ['modelVersion1','modelVersion11','modelVersion12','modelVersion13']
+            2: ['modelVersion2']
+            100: ['modelVersion100','modelVersion101','modelVersion102','modelVersion103']
+            200: ['modelVersion200','modelVersion201','modelVersion202']
+	supportedModels3:
+            1: ['modelVersion1','modelVersion11','modelVersion12','modelVersion13']
+            2: ['modelVersion2']
+            100: ['modelVersion100','modelVersion101','modelVersion102','modelVersion103']
+            200: ['modelVersion200','modelVersion201','modelVersion202']
+    supportedModels4:
+        1: ['modelVersion1','modelVersion11','modelVersion12','modelVersion13']
+        2: ['modelVersion2']
+        100: ['modelVersion100','modelVersion101','modelVersion102','modelVersion103']
+        200: ['modelVersion200','modelVersion201','modelVersion202']
+
+    colorsRuleFileEnabled: false
