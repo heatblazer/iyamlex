@@ -218,11 +218,14 @@ int main(int argc, char** argv)
 
     ymlp.Parse();
 
-    ymlp.dbg_print();
 
     YamlParser::YamlNodeStrStr node = ymlp.GetVal("CoinbaseCustodial:");
-
-    node.print();
+    for (auto it : node.children) {
+        if (it.isRoot) {
+            std::cout << it.key << std::endl;
+        }
+    }
+//    node.print();
 
     return 0;
 }
