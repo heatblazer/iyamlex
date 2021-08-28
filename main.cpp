@@ -1,21 +1,10 @@
-#include "YamlParser.hpp"
+#include "yaml2ex.hpp"
+
 
 int main(int argc, char** argv)
 {
-    if (argc != 2) {
-        std::cout << "provide argument...\r\n";
-        return 1;
-    }
-    std::string fname {argv[1]};
-    YamlParser ymlp;
-
-    ymlp.Load(fname);
-
-    ymlp.Parse();
-
-
-    YamlParser::YamlNodeStrStr node = ymlp.GetVal("Classifier:");
-     node.print();
-
+    YamlParser yp;
+    yp.Load(argv[1]);
+    yp.Parse();
     return 0;
 }
