@@ -25,7 +25,14 @@ struct YamlParser
         std::unordered_map<std::string, YamlNode*> map;
         ~YamlNode()
         {
-            std::cout << "~YamlNode()\r\n";
+//            std::cout << "~YamlNode()\r\n";
+        }
+
+        YamlNode* operator[](const std::string& key) {
+            if(map.find(key) != map.end()) {
+                return  map[key];
+            }
+            return nullptr;
         }
     };
 
@@ -41,6 +48,7 @@ struct YamlParser
         yaml_parser_delete(&parser);
         fclose(fp);
         cleanup(&m_rootNode);
+        m_rootNode.map.clear();
     }
 
     bool Load(const char* fname)
@@ -58,9 +66,14 @@ struct YamlParser
         return bres;;
     }
 
-    void dbgprn()
+    void dbgprn(YamlNode* root)
     {
-
+        if (!root)return;
+        std::cout << root->k << std::endl;
+        for (auto it : root->map) {
+            std::cout << "VALUE:" << it.first << std::endl;
+            dbgprn(it.second);
+        }
     }
 
     void Parse()
@@ -78,9 +91,13 @@ struct YamlParser
         yaml_event_delete(e);
         yaml_parser_parse(p, e);
         yaml_event_delete(e);
-
         yaml_parser_delete(p);
+//        dbgprn(&m_rootNode);
+    }
 
+    YamlNode& root()
+    {
+        return  m_rootNode;
     }
 
 
