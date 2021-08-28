@@ -19,9 +19,15 @@
 struct YamlParser
 {
 
-    yaml_parser_t parser;
-    yaml_event_t  event;   /* New variable */
-    FILE* fp ;
+    struct YamlNode
+    {
+        std::string k, v;
+        std::unordered_map<std::string, YamlNode*> map;
+        ~YamlNode()
+        {
+            std::cout << "~YamlNode()\r\n";
+        }
+    };
 
     YamlParser() : fp{nullptr}
     {
@@ -34,6 +40,7 @@ struct YamlParser
         yaml_event_delete(&event);
         yaml_parser_delete(&parser);
         fclose(fp);
+        cleanup(&m_rootNode);
     }
 
     bool Load(const char* fname)
@@ -64,12 +71,8 @@ struct YamlParser
         yaml_event_delete(e);
         yaml_parser_parse(p, e);
         yaml_event_delete(e);
-
-        char cur_key[100] = {'\0'};
-        struct Input input[400];
-        struct Input *input_end = input;
         //        append_all(p, &input_end, cur_key, 0);
-        append_all2(p, m_rootNode);
+        parse_internal(p, m_rootNode);
         // skip document end and stream end
         yaml_parser_parse(p, e);
         yaml_event_delete(e);
@@ -78,68 +81,29 @@ struct YamlParser
 
         yaml_parser_delete(p);
 
-
-        for (struct Input *cur = input; cur < input_end; ++cur) {
-            printf("%s = %s\n", cur->key, cur->value);
-        }
     }
 
 
-    struct YamlNode
-    {
-        std::string k, v;
-        std::unordered_map<std::string, YamlNode*> map;
-    };
 
 private:
 
+    yaml_parser_t parser;
+    yaml_event_t  event;   /* New variable */
+    FILE* fp ;
 
     std::stack<YamlNode> m_helper;
     YamlNode m_rootNode;
 
-    struct Input {
-        char key[100];
-        char value[100];
-    };
-
-    struct Input gen(const char *key, const char *value) {
-        struct Input ret;
-        strcpy(ret.key, key);
-        strcpy(ret.value, value);
-        return ret;
-    }
-
-    void append_all(yaml_parser_t *p, struct Input **target,
-                    char cur_key[100], size_t len) {
-        yaml_event_t e;
-        yaml_parser_parse(p, &e);
-        switch (e.type) {
-        case YAML_MAPPING_START_EVENT:
-            yaml_event_delete(&e);
-            yaml_parser_parse(p, &e);
-            while (e.type != YAML_MAPPING_END_EVENT) {
-                // assume scalar key
-                assert(e.type == YAML_SCALAR_EVENT);
-                if (len != 0) cur_key[len++] = '.';
-                memcpy(cur_key + len, e.data.scalar.value,
-                       strlen((char*)e.data.scalar.value) + 1);
-                const size_t new_len = len + strlen((char*)e.data.scalar.value);
-                yaml_event_delete(&e);
-                append_all(p, target, cur_key, new_len);
-                if (len != 0) --len;
-                cur_key[len] = '\0'; // remove key part
-                yaml_parser_parse(p, &e);
-            }
-            break;
-        case YAML_SCALAR_EVENT:
-            *(*target)++ = gen(cur_key, (char*)e.data.scalar.value);
-            break;
-        default: assert(false);
+    void cleanup(YamlNode* root)
+    {
+        if (!root) return;
+        for(auto it : root->map) {
+            cleanup(it.second);
+            delete it.second;
         }
-        yaml_event_delete(&e);
     }
 
-    void append_all2(yaml_parser_t *p, YamlNode& node) {
+    void parse_internal(yaml_parser_t *p, YamlNode& node) {
         yaml_event_t e;
         yaml_parser_parse(p, &e);
         switch (e.type) {
@@ -165,7 +129,7 @@ private:
                     node.k = scalar;
                     node.map[scalar] = new YamlNode;
                     //                    m_helper.push(node);
-                    append_all2(p, *node.map[scalar]);
+                    parse_internal(p, *node.map[scalar]);
                     yaml_parser_parse(p, &e);
                 }
             }

@@ -1,6 +1,5 @@
 #include "yaml2ex.hpp"
 
-
 int main(int argc, char** argv)
 {
     YamlParser yp;
