@@ -1,6 +1,6 @@
 #ifndef YAML2EX_HPP
 #define YAML2EX_HPP
-#include <yaml.h>
+#include "yaml.h"
 
 #include <cstring>
 #include <stdio.h>
