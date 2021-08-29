@@ -145,7 +145,7 @@ private:
                     yaml_event_delete(&e);
                     node.k = scalar;
                     node.map[scalar] = new YamlNode;
-                    //                    m_helper.push(node);
+                    node.map[scalar]->k = scalar;
                     parse_internal(p, *node.map[scalar]);
                     yaml_parser_parse(p, &e);
                 }
@@ -153,7 +153,9 @@ private:
             break;
         case YAML_SCALAR_EVENT: {
             std::string val {(char*)e.data.scalar.value};
-
+            node.map[node.k] = new YamlNode;
+            node.map[node.k]->k = val;
+            node.map[node.k]->map[val] = new YamlNode;
             //            *(*target)++ = gen(cur_key, (char*)e.data.scalar.value);
             break;
         }

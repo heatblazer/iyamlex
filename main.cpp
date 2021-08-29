@@ -6,10 +6,18 @@ int main(int argc, char** argv)
     yp.Load(argv[1]);
     yp.Parse();
     auto rnode = yp.root();
-    YamlParser::YamlNode* data = rnode["Producer"]->operator[]("knownApps");
-    if (data) {
-        for (auto it : data->map) {
+    YamlParser::YamlNode* knownApps= rnode["Producer"]->operator[]("knownApps");
+    if (knownApps) {
+        for (auto it : knownApps->map) {
             std::cout << it.first << std::endl;
+        }
+    }
+    YamlParser::YamlNode* waapath= rnode["Producer"]->operator[]("waaPath");
+    if (waapath) {
+        for (auto it : waapath->map) {
+            std::cout << it.first << std::endl;
+            std::cout << it.second->k << std::endl;
+
         }
     }
     return 0;
