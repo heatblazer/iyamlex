@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 4.15.2, 2021-08-29T08:52:32. -->
+<!-- Written by QtCreator 4.15.2, 2021-08-29T22:00:48. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -295,7 +295,7 @@
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">yaml2ext2</value>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.Qt4RunConfiguration:/home/ilian/gitprojects/iyamlex/yaml2ext.pro</value>
     <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">/home/ilian/gitprojects/iyamlex/yaml2ext.pro</value>
-    <value type="QString" key="RunConfiguration.Arguments">/home/ilian/Desktop/verint/yaml/tst.yml</value>
+    <value type="QString" key="RunConfiguration.Arguments">/home/ilian/Desktop/verint/yaml/tst3.yml</value>
     <value type="bool" key="RunConfiguration.UseCppDebugger">false</value>
     <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
     <value type="bool" key="RunConfiguration.UseLibrarySearchPath">true</value>

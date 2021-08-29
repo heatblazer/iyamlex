@@ -21,7 +21,7 @@ struct YamlParser
 
     struct YamlNode
     {
-        std::string k, v;
+        std::string k;
         std::unordered_map<std::string, YamlNode*> map;
         ~YamlNode()
         {
@@ -36,32 +36,35 @@ struct YamlParser
         }
     };
 
-    YamlParser() : fp{nullptr}
+    YamlParser() : m_filePtr{nullptr}, m_rootNode {nullptr}
     {
-        memset(&parser, 0 , sizeof(parser));
-        memset(&event, 0, sizeof(event));
-
+        memset(&m_parser, 0 , sizeof(m_parser));
+        memset(&m_event, 0, sizeof(m_event));
+        m_rootNode = new YamlNode;
     }
     ~YamlParser()
     {
-        yaml_event_delete(&event);
-        yaml_parser_delete(&parser);
-        fclose(fp);
-        cleanup(&m_rootNode);
-        m_rootNode.map.clear();
+        yaml_event_delete(&m_event);
+        yaml_parser_delete(&m_parser);
+        fclose(m_filePtr);
+        cleanup(m_rootNode);
+        if (m_rootNode) {
+            delete  m_rootNode;
+            m_rootNode = nullptr;
+        }
     }
 
     bool Load(const char* fname)
     {
         bool bres = false;
-        fp = fopen(fname, "r");
-        if (!fp) return  bres;
+        m_filePtr = fopen(fname, "r");
+        if (!m_filePtr) return  bres;
         else {
-            if (!yaml_parser_initialize(&parser))
+            if (!yaml_parser_initialize(&m_parser))
                 return  bres;
             bres = true;
         }
-        yaml_parser_set_input_file(&parser, fp);
+        yaml_parser_set_input_file(&m_parser, m_filePtr);
 
         return bres;;
     }
@@ -78,49 +81,53 @@ struct YamlParser
 
     void Parse()
     {
-        yaml_parser_t*p = &parser;
-        yaml_event_t* e = &event;
-        yaml_parser_parse(p, e);
-        yaml_event_delete(e);
-        yaml_parser_parse(p, e);
-        yaml_event_delete(e);
-        //        append_all(p, &input_end, cur_key, 0);
+        yaml_parser_t*p = &m_parser;
+        yaml_event_t* e = &m_event;
+
+        skip_event(p, e);
+        skip_event(p, e);
         parse_internal(p, m_rootNode);
         // skip document end and stream end
-        yaml_parser_parse(p, e);
-        yaml_event_delete(e);
-        yaml_parser_parse(p, e);
-        yaml_event_delete(e);
-        yaml_parser_delete(p);
+        skip_event(p, e);
+        skip_event(p, e);
 //        dbgprn(&m_rootNode);
     }
 
-    YamlNode& root()
+    YamlNode* root()
     {
         return  m_rootNode;
     }
 
 
-
 private:
 
-    yaml_parser_t parser;
-    yaml_event_t  event;   /* New variable */
-    FILE* fp ;
+    yaml_parser_t m_parser;
+    yaml_event_t  m_event;   /* New variable */
+    FILE* m_filePtr ;
+    YamlNode* m_rootNode;
 
-    std::stack<YamlNode> m_helper;
-    YamlNode m_rootNode;
+
+
+    void skip_event(yaml_parser_t* p, yaml_event_t* e)
+    {
+        yaml_parser_parse(p, e);
+        yaml_event_delete(e);
+    }
 
     void cleanup(YamlNode* root)
     {
-        if (!root) return;
+        if (!root)
+            return;
         for(auto it : root->map) {
+
             cleanup(it.second);
+            it.second->map.clear();
             delete it.second;
         }
     }
 
-    void parse_internal(yaml_parser_t *p, YamlNode& node) {
+    void parse_internal(yaml_parser_t *p, YamlNode* node) {
+        if (!node) return;
         yaml_event_t e;
         yaml_parser_parse(p, &e);
         switch (e.type) {
@@ -128,7 +135,7 @@ private:
             yaml_event_delete(&e);
             yaml_parser_parse(p, &e);
             while (e.type != YAML_SEQUENCE_END_EVENT) {
-                //                append_all2(p, *node.map[scalar]);
+                //not supported yet...
                 std::string ttt {(char*)e.data.scalar.value};
                 yaml_parser_parse(p, &e);
             }
@@ -143,20 +150,20 @@ private:
                 std::string scalar{(char*) e.data.scalar.value };
                 if (!scalar.empty()) {
                     yaml_event_delete(&e);
-                    node.k = scalar;
-                    node.map[scalar] = new YamlNode;
-                    node.map[scalar]->k = scalar;
-                    parse_internal(p, *node.map[scalar]);
+//                    node->k = scalar;
+                    node->map[scalar] = new YamlNode;
+ //                   node->map[scalar]->k = node->k;
+ //                   parse_internal(p, node->map[scalar]);
+                    parse_internal(p, node->operator[](scalar));
                     yaml_parser_parse(p, &e);
                 }
             }
             break;
         case YAML_SCALAR_EVENT: {
             std::string val {(char*)e.data.scalar.value};
-            node.map[node.k] = new YamlNode;
-            node.map[node.k]->k = val;
-            node.map[node.k]->map[val] = new YamlNode;
-            //            *(*target)++ = gen(cur_key, (char*)e.data.scalar.value);
+            node->map[node->k] = new YamlNode;
+            node->map[node->k]->k = val;
+//            node->map[node->k]->map[val] = new YamlNode;
             break;
         }
         default:
